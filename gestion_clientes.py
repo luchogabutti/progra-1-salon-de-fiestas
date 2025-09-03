@@ -1,5 +1,5 @@
 clientes = []
-contador_clientes = 1  # ID único para cada cliente
+contador_clientes = 1  
 
 def registrar_cliente():
     global contador_clientes
