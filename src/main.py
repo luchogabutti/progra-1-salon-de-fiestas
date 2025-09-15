@@ -1,6 +1,7 @@
 def menu():
     while True:
-        print("\n--- Sistema de Gestión - Salón de Fiestas ---")
+        print("\n--- Bienvenido al Sistema de Gestión de Salón de Fiestas ---")
+        print("Por favor, seleccione una opción: ")
         print("1. Registrar reserva")
         print("2. Listar reservas")
         print("3. Modificar reserva")
@@ -21,7 +22,7 @@ def menu():
         elif opcion == "5":
             print(" Aquí iría la lógica para generar un reporte")
         elif opcion == "0":
-            print("¡Gracias por usar el sistema!")
+            print("¡Gracias por usar el sistema, saludos!")
             break
         else:
             print("Opción inválida, intente de nuevo.")
