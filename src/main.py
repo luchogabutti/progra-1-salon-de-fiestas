@@ -1,31 +1,41 @@
+listaCliente = []
+documentoCliente = []
+
+# Registro de nuevos clientes
+def nuevo_cliente(nombre, dni):
+    listaCliente.append(nombre)
+    documentoCliente.append(dni)
+    print("Cliente registrado con éxito.")
+
+def listar_clientes():
+    if len(listaCliente) == 0:
+        print("No hay clientes registrados.")
+    else:
+        print("\n--- Lista de clientes ---")
+        for i in range(len(listaCliente)):
+            print("Nombre:", listaCliente[i], "- DNI:", documentoCliente[i])
+
+#Menú principal
 def menu():
     while True:
-        print("\n--- Bienvenido al Sistema de Gestión de Salón de Fiestas ---")
-        print("Por favor, seleccione una opción: ")
-        print("1. Registrar reserva")
-        print("2. Listar reservas")
-        print("3. Modificar reserva")
-        print("4. Cancelar reserva")
-        print("5. Generar reporte")
+        print("\n--- Sistema de Gestión del Salón de Fiestas ---")
+        print("1. Registrar cliente")
+        print("2. Listar clientes")
         print("0. Salir")
 
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            print(" Aquí iría la lógica para registrar una reserva")
+            nombre = input("Nombre y apellido: ")
+            dni = input("DNI: ")
+            nuevo_cliente(nombre, dni)
         elif opcion == "2":
-            print(" Aquí iría la lógica para listar reservas")
-        elif opcion == "3":
-            print(" Aquí iría la lógica para modificar una reserva")
-        elif opcion == "4":
-            print(" Aquí iría la lógica para cancelar una reserva")
-        elif opcion == "5":
-            print(" Aquí iría la lógica para generar un reporte")
+            listar_clientes()
         elif opcion == "0":
-            print("¡Gracias por usar el sistema, saludos!")
+            print("\n¡Gracias por usar el sistema, hasta la próxima!")
             break
         else:
-            print("Opción inválida, intente de nuevo.")
+            print("\nOpción inválida, intente de nuevo.")
 
 if __name__ == "__main__":
     menu()
