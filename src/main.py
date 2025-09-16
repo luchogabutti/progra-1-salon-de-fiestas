@@ -135,7 +135,7 @@ def menu():
             print("¡Gracias por usar el sistema, hasta la próxima!")
             return False
         else:
-            print("Opción inválida.")
+            print("\nOpción inválida, intente de nuevo.")
 
 if __name__ == "__main__":
     menu()
