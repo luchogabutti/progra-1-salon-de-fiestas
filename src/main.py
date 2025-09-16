@@ -18,8 +18,13 @@ def nuevo_cliente(nombre, dni):
     """Registra un nuevo cliente"""
     if not es_numero(dni):
         """validamos que el el DNI ingresado sea un numero"""
-        print("\n¡Error! El DNI debe ser un número. Redirigiendo al menú principal...")
+        print("\n¡Error! El DNI debe ser un número.")
         return
+    for d in documentoCliente:
+        """Validamos que el DNI no esté ya registrado"""
+        if d == dni:
+            print("\n¡Error! Ya existe un cliente con ese DNI.")
+            return
     listaCliente.append(nombre)
     documentoCliente.append(dni)
     print("\nCliente registrado con éxito.")
@@ -81,13 +86,13 @@ def registrar_reserva():
         return
     dia, mes, anio = fecha[0], fecha[1], fecha[2]
     if mes < 1 or mes > 12:
-        print("\nError: El mes debe estar entre 1 y 12 inclusive.")
+        print("\n¡Error!: El mes debe estar entre 1 y 12 inclusive.")
         return
     if dia <= 1 or dia >= 31:
-        print("\nError: El día debe estar entre 1 y 31 inclusive.")
+        print("\n¡Error!: El día debe estar entre 1 y 31 inclusive.")
         return
     if anio < 0:
-        print("\nError: El año no puede ser negativo.")
+        print("\n¡Error!: El año no puede ser negativo.")
         return
 
     if fecha_disponible(fecha):
