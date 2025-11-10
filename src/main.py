@@ -1,11 +1,10 @@
-listaCliente = []
-documentoCliente = []
+clientes = []
 reservas = []
 MIN_SEPARACION_DIAS = 1
 
 
 def es_numero(cadena):
-    """True si todos los caracteres son dígitos"""
+    """True si todos los caracteres son dígitos."""
     if len(cadena) == 0:
         return False
     for c in cadena:
@@ -15,33 +14,30 @@ def es_numero(cadena):
 
 
 def nuevo_cliente(nombre, dni):
-    """Registra un nuevo cliente"""
+    """Registra un nuevo cliente en la estructura 'clientes'."""
     if not es_numero(dni):
-        """validamos que el el DNI ingresado sea un numero"""
         print("\n¡Error! El DNI debe ser un número.")
         return
-    for d in documentoCliente:
-        """Validamos que el DNI no esté ya registrado"""
-        if d == dni:
+    for c in clientes:
+        if c["dni"] == dni:
             print("\n¡Error! Ya existe un cliente con ese DNI.")
             return
-    listaCliente.append(nombre)
-    documentoCliente.append(dni)
+    clientes.append({"nombre": nombre.strip(), "dni": dni.strip()})
     print("\nCliente registrado con éxito.")
 
 
 def listar_clientes():
-    """Muestra la lista de clientes"""
-    if len(listaCliente) == 0:
+    """Muestra la lista completa de clientes."""
+    if not clientes:
         print("No hay clientes registrados.")
     else:
         print("\nLista de clientes:")
-        for i in range(len(listaCliente)):
-            print("Nombre:", listaCliente[i], "- DNI:", documentoCliente[i])
+        for c in clientes:
+            print("Nombre:", c["nombre"], "- DNI:", c["dni"])
 
 
 def convertir_fecha(fecha_texto):
-    """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a [dia, mes, anio]"""
+    """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a [dia, mes, anio]."""
     fecha_texto = fecha_texto.replace("-", "/")
     partes = fecha_texto.split("/")
     if len(partes) != 3:
@@ -56,7 +52,7 @@ def convertir_fecha(fecha_texto):
 
 
 def diferencia_dias(fecha1, fecha2):
-    """Devuelve la diferencia de días entre dos fechas"""
+    """Devuelve la diferencia de días entre dos fechas [d, m, a]."""
     dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     total1 = fecha1[2] * 365 + sum(dias_por_mes[:fecha1[1]-1]) + fecha1[0]
     total2 = fecha2[2] * 365 + sum(dias_por_mes[:fecha2[1]-1]) + fecha2[0]
@@ -64,7 +60,7 @@ def diferencia_dias(fecha1, fecha2):
 
 
 def fecha_disponible(fecha_nueva):
-    """Verifica si la fecha está libre"""
+    """True si la fecha está libre considerando MIN_SEPARACION_DIAS."""
     for r in reservas:
         fecha_existente = [r[2], r[3], r[4]]
         dif = diferencia_dias(fecha_nueva, fecha_existente)
@@ -74,7 +70,7 @@ def fecha_disponible(fecha_nueva):
 
 
 def registrar_reserva():
-    """Registra una nueva reserva"""
+    """Registra una nueva reserva."""
     print("\nRegistrar reserva")
     nombre = input("Nombre del cliente: ")
     tipo = input("Tipo de fiesta: ")
@@ -104,7 +100,7 @@ def registrar_reserva():
 
 
 def listar_reservas():
-    """Muestra la lista de reservas"""
+    """Muestra la lista de reservas."""
     if len(reservas) == 0:
         print("No hay reservas registradas.")
     else:
@@ -115,7 +111,7 @@ def listar_reservas():
 
 
 def menu():
-    """Menú principal"""
+    """Menú principal del sistema."""
     while True:
         print("\nSistema de Gestión del Salón de Fiestas ")
         print("1. Registrar cliente")
@@ -142,5 +138,6 @@ def menu():
         else:
             print("\nOpción inválida, intente de nuevo.")
 
-if __name__ == "__main__":
-    menu()
+
+if _name_ == "_main_":
+    menu()
