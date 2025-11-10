@@ -1,14 +1,13 @@
 import os
 import json
- 
+
 ARCHIVO_CLIENTES = "clientes.json"
 ARCHIVO_RESERVAS = "reservas.json"
- 
+
 clientes = []
 reservas = []
-MIN_SEPARACION_DIAS = 1
- 
- 
+
+
 def es_numero(cadena):
     """True si todos los caracteres son dígitos."""
     if len(cadena) == 0:
@@ -17,14 +16,53 @@ def es_numero(cadena):
         if c not in "0123456789":
             return False
     return True
- 
- 
+
+
+def convertir_fecha(fecha_texto):
+    """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a 'AAAA-MM-DD'."""
+    fecha_texto = fecha_texto.replace("-", "/")
+    partes = fecha_texto.split("/")
+    if len(partes) != 3:
+        return None
+    if es_numero(partes[0]) and es_numero(partes[1]) and es_numero(partes[2]):
+        dia = int(partes[0])
+        mes = int(partes[1])
+        anio = int(partes[2])
+        if not (1 <= mes <= 12):
+            return None
+        if not (1 <= dia <= 31):
+            return None
+        if anio < 0:
+            return None
+        return f"{anio:04d}-{mes:02d}-{dia:02d}"
+    else:
+        return None
+
+
+def generar_id_reserva():
+    """Devuelve un ID incremental para reservas."""
+    max_id = 0
+    for r in reservas:
+        if "id" in r and es_numero(str(r["id"])) and int(r["id"]) > max_id:
+            max_id = int(r["id"])
+    return max_id + 1
+
+
+def existe_reserva_en_fecha(fecha_iso, excluir_id=None):
+    """True si existe reserva en esa fecha (opcional: excluye una ID)."""
+    for r in reservas:
+        if r["fecha"] == fecha_iso:
+            if excluir_id is None or r["id"] != excluir_id:
+                return True
+    return False
+
+
 def guardar_clientes():
     """Guarda los clientes en un archivo JSON."""
     with open(ARCHIVO_CLIENTES, "w") as f:
         json.dump(clientes, f)
- 
- 
+
+
 def cargar_clientes():
     """Carga los clientes desde un archivo JSON si existe."""
     if not os.path.exists(ARCHIVO_CLIENTES):
@@ -38,14 +76,14 @@ def cargar_clientes():
                 return []
     except:
         return []
- 
- 
+
+
 def guardar_reservas():
     """Guarda las reservas en un archivo JSON."""
     with open(ARCHIVO_RESERVAS, "w") as f:
         json.dump(reservas, f)
- 
- 
+
+
 def cargar_reservas():
     """Carga las reservas desde un archivo JSON si existe."""
     if not os.path.exists(ARCHIVO_RESERVAS):
@@ -59,8 +97,8 @@ def cargar_reservas():
                 return []
     except:
         return []
- 
- 
+
+
 def nuevo_cliente(nombre, dni):
     """Registra un nuevo cliente en la estructura 'clientes'."""
     if not es_numero(dni):
@@ -73,8 +111,8 @@ def nuevo_cliente(nombre, dni):
     clientes.append({"nombre": nombre.strip(), "dni": dni.strip()})
     guardar_clientes()
     print("\nCliente registrado con éxito.")
- 
- 
+
+
 def listar_clientes():
     """Muestra la lista completa de clientes."""
     if not clientes:
@@ -83,100 +121,209 @@ def listar_clientes():
         print("\nLista de clientes:")
         for c in clientes:
             print("Nombre:", c["nombre"], "- DNI:", c["dni"])
- 
- 
-def convertir_fecha(fecha_texto):
-    """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a [dia, mes, anio]."""
-    fecha_texto = fecha_texto.replace("-", "/")
-    partes = fecha_texto.split("/")
-    if len(partes) != 3:
-        return None
-    if es_numero(partes[0]) and es_numero(partes[1]) and es_numero(partes[2]):
-        dia = int(partes[0])
-        mes = int(partes[1])
-        anio = int(partes[2])
-        return [dia, mes, anio]
-    else:
-        return None
- 
- 
-def diferencia_dias(fecha1, fecha2):
-    """Devuelve la diferencia de días entre dos fechas [d, m, a]."""
-    dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    total1 = fecha1[2] * 365 + sum(dias_por_mes[:fecha1[1]-1]) + fecha1[0]
-    total2 = fecha2[2] * 365 + sum(dias_por_mes[:fecha2[1]-1]) + fecha2[0]
-    return total1 - total2
- 
- 
-def fecha_disponible(fecha_nueva):
-    """True si la fecha está libre considerando MIN_SEPARACION_DIAS."""
-    for r in reservas:
-        fecha_existente = [r[2], r[3], r[4]]
-        dif = diferencia_dias(fecha_nueva, fecha_existente)
-        if -MIN_SEPARACION_DIAS < dif < MIN_SEPARACION_DIAS:
-            return False
-    return True
- 
- 
+
+
+menu_opciones = {"1": "Infantil", "2": "Adultos", "3": "Premium"}
+musica_opciones = {"1": "DJ", "2": "Banda", "3": "Playlist personalizada"}
+servicios_opciones = {
+    "1": "Decoración temática",
+    "2": "Fotografía",
+    "3": "Animación",
+    "4": "Cotillón"
+}
+
+
 def registrar_reserva():
-    """Registra una nueva reserva."""
+    """Registra una nueva reserva con menú, música y servicios."""
     print("\nRegistrar reserva")
-    nombre = input("Nombre del cliente: ")
-    tipo = input("Tipo de fiesta: ")
-    fecha_texto = input("Fecha (DD/MM/AAAA): ")
-    fecha = convertir_fecha(fecha_texto)
- 
-    if fecha is None:
+    nombre = input("Nombre del cliente: ").strip()
+    tipo = input("Tipo de fiesta: ").strip()
+    fecha_texto = input("Fecha (DD/MM/AAAA): ").strip()
+
+    fecha_iso = convertir_fecha(fecha_texto)
+    if fecha_iso is None:
         print("\nFormato de fecha inválido. Usar DD/MM/AAAA (ej: 18/09/2023).")
         return
-    dia, mes, anio = fecha[0], fecha[1], fecha[2]
-    if mes < 1 or mes > 12:
-        print("\n¡Error!: El mes debe estar entre 1 y 12 inclusive.")
+
+    if existe_reserva_en_fecha(fecha_iso):
+        print("No se puede reservar: ya existe una reserva en esa fecha.")
         return
-    if dia <= 1 or dia >= 31:
-        print("\n¡Error!: El día debe estar entre 1 y 31 inclusive.")
-        return
-    if anio < 0:
-        print("\n¡Error!: El año no puede ser negativo.")
-        return
- 
-    if fecha_disponible(fecha):
-        reservas.append([nombre, tipo, dia, mes, anio])
-        guardar_reservas()
-        print("\nReserva registrada con éxito.")
-    else:
-        print("No se puede reservar: deben pasar al menos",
-              MIN_SEPARACION_DIAS, "día(s) entre eventos.")
- 
- 
+
+    print("\nMenús disponibles:")
+    for k, v in menu_opciones.items():
+        print(f"{k}. {v}")
+    sel_menu = input("Seleccione menú: ").strip()
+    menu = menu_opciones.get(sel_menu, "Sin definir")
+
+    print("\nMúsica disponible:")
+    for k, v in musica_opciones.items():
+        print(f"{k}. {v}")
+    sel_musica = input("Seleccione música: ").strip()
+    musica = musica_opciones.get(sel_musica, "Sin definir")
+
+    print("\nServicios adicionales (separe por coma, o ENTER para ninguno):")
+    for k, v in servicios_opciones.items():
+        print(f"{k}. {v}")
+    sel_serv = input("Seleccione: ").strip()
+    servicios = []
+    if sel_serv != "":
+        partes = sel_serv.split(",")
+        for p in partes:
+            clave = p.strip()
+            if clave in servicios_opciones:
+                servicios.append(servicios_opciones[clave])
+
+    reserva = {
+        "id": generar_id_reserva(),
+        "nombre": nombre,
+        "tipo": tipo,
+        "fecha": fecha_iso,
+        "menu": menu,
+        "musica": musica,
+        "servicios": servicios
+    }
+    reservas.append(reserva)
+    guardar_reservas()
+    print("\nReserva registrada con éxito.")
+
+
 def listar_reservas():
     """Muestra la lista de reservas."""
-    if len(reservas) == 0:
+    if not reservas:
         print("No hay reservas registradas.")
     else:
         print("\nLista de reservas")
-        for r in reservas:
-            print("Cliente: ", r[0], " - Fiesta: ", r[1],
-                  " - Fecha: ", r[2], "/", r[3], "/", r[4], sep="")
- 
- 
+        reservitas = reservas[:]
+        reservitas.sort(key=lambda x: x["fecha"])
+        for r in reservitas:
+            serv_txt = ", ".join(r["servicios"]) if r["servicios"] else "Ninguno"
+            print(f"ID {r['id']} - Cliente: {r['nombre']} - Fiesta: {r['tipo']} - Fecha: {r['fecha']} - Menú: {r['menu']} - Música: {r['musica']} - Servicios: {serv_txt}")
+
+
+def modificar_reserva():
+    """Modifica una reserva por ID."""
+    listar_reservas()
+    if not reservas:
+        return
+
+    try:
+        id_sel = int(input("\nID de la reserva a modificar: ").strip())
+    except:
+        print("ID inválido.")
+        return
+
+    objetivo = None
+    for r in reservas:
+        if r["id"] == id_sel:
+            objetivo = r
+            break
+
+    if objetivo is None:
+        print("No se encontró la reserva.")
+        return
+
+    print("Deje vacío para mantener el valor anterior.")
+    nuevo_tipo = input(f"Tipo de fiesta ({objetivo['tipo']}): ").strip()
+    if nuevo_tipo != "":
+        objetivo["tipo"] = nuevo_tipo
+
+    nueva_fecha = input(f"Fecha ({objetivo['fecha']}) - DD/MM/AAAA: ").strip()
+    if nueva_fecha != "":
+        nueva_iso = convertir_fecha(nueva_fecha)
+        if nueva_iso is None:
+            print("Formato inválido, se mantiene la fecha anterior.")
+        else:
+            if existe_reserva_en_fecha(nueva_iso, excluir_id=objetivo["id"]):
+                print("Esa fecha ya está ocupada. No se cambia.")
+            else:
+                objetivo["fecha"] = nueva_iso
+
+    cambiar_menu = input("¿Cambiar menú? (s/N): ").strip().lower()
+    if cambiar_menu == "s":
+        print("\nMenús disponibles:")
+        for k, v in menu_opciones.items():
+            print(f"{k}. {v}")
+        sel = input("Seleccione menú: ").strip()
+        objetivo["menu"] = menu_opciones.get(sel, objetivo["menu"])
+
+    cambiar_musica = input("¿Cambiar música? (s/N): ").strip().lower()
+    if cambiar_musica == "s":
+        print("\nMúsica disponible:")
+        for k, v in musica_opciones.items():
+            print(f"{k}. {v}")
+        sel = input("Seleccione música: ").strip()
+        objetivo["musica"] = musica_opciones.get(sel, objetivo["musica"])
+
+    cambiar_servicios = input("¿Cambiar servicios? (s/N): ").strip().lower()
+    if cambiar_servicios == "s":
+        print("\nServicios adicionales (separe por coma, o ENTER para ninguno):")
+        for k, v in servicios_opciones.items():
+            print(f"{k}. {v}")
+        sel = input("Seleccione: ").strip()
+        nuevos = []
+        if sel != "":
+            partes = sel.split(",")
+            for p in partes:
+                clave = p.strip()
+                if clave in servicios_opciones:
+                    nuevos.append(servicios_opciones[clave])
+        objetivo["servicios"] = nuevos
+
+    guardar_reservas()
+    print("Reserva modificada con éxito.")
+
+
+def eliminar_reserva():
+    """Elimina una reserva por ID."""
+    listar_reservas()
+    if not reservas:
+        return
+
+    try:
+        id_sel = int(input("\nID de la reserva a eliminar: ").strip())
+    except:
+        print("ID inválido.")
+        return
+
+    idx = -1
+    for i, r in enumerate(reservas):
+        if r["id"] == id_sel:
+            idx = i
+            break
+
+    if idx == -1:
+        print("No se encontró la reserva.")
+        return
+
+    print(f"Se eliminará la reserva ID {reservas[idx]['id']} de {reservas[idx]['nombre']} en {reservas[idx]['fecha']}.")
+    conf = input("Confirmar (ELIMINAR): ").strip()
+    if conf == "ELIMINAR":
+        reservas.pop(idx)
+        guardar_reservas()
+        print("Reserva eliminada con éxito.")
+    else:
+        print("Operación cancelada.")
+
+
 def menu():
     """Menú principal del sistema."""
     clientes_cargados = cargar_clientes()
     reservas_cargadas = cargar_reservas()
     clientes.clear(); clientes.extend(clientes_cargados)
     reservas.clear(); reservas.extend(reservas_cargadas)
- 
+
     while True:
         print("\nSistema de Gestión del Salón de Fiestas ")
         print("1. Registrar cliente")
         print("2. Listar clientes")
         print("3. Registrar reserva")
         print("4. Listar reservas")
+        print("5. Modificar reserva")
+        print("6. Eliminar reserva")
         print("0. Salir")
- 
+
         opcion = input("\nSeleccione una opción: ")
- 
+
         if opcion == "1":
             nombre = input("Nombre y apellido: ")
             dni = input("DNI: ")
@@ -187,13 +334,17 @@ def menu():
             registrar_reserva()
         elif opcion == "4":
             listar_reservas()
+        elif opcion == "5":
+            modificar_reserva()
+        elif opcion == "6":
+            eliminar_reserva()
         elif opcion == "0":
             print("¡Gracias por usar el sistema, hasta la próxima!")
             return False
         else:
             print("\nOpción inválida, intente de nuevo.")
- 
- 
-if __name__ == "__main__":
+
+
+if _name_ == "_main_":
     menu()
     
