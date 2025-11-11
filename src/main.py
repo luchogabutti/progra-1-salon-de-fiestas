@@ -102,7 +102,7 @@ def cargar_reservas():
 def nuevo_cliente(nombre, dni):
     """Registra un nuevo cliente en la estructura 'clientes'."""
     if not es_numero(dni):
-        print("\n¡Error! El DNI debe ser un número.")
+        print("\n¡Error! El DNI debe ser un número. Volviendo al menú principal...")
         return
     for c in clientes:
         if c["dni"] == dni:
@@ -110,7 +110,7 @@ def nuevo_cliente(nombre, dni):
             return
     clientes.append({"nombre": nombre.strip(), "dni": dni.strip()})
     guardar_clientes()
-    print("\nCliente registrado con éxito.")
+    print("\nCliente registrado con éxito y guardado en archivo json.")
 
 
 def listar_clientes():
@@ -329,8 +329,8 @@ def menu():
         opcion = input("\nSeleccione una opción: ")
 
         if opcion == "1":
-            nombre = input("Nombre y apellido: ")
-            dni = input("DNI: ")
+            nombre = input("\nIngrese el nombre y apellido: ")
+            dni = input("Ingrese el DNI: ")
             nuevo_cliente(nombre, dni)
         elif opcion == "2":
             listar_clientes()
