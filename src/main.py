@@ -116,7 +116,7 @@ def nuevo_cliente(nombre, dni):
 def listar_clientes():
     """Muestra la lista completa de clientes."""
     if not clientes:
-        print("No hay clientes registrados.")
+        print("\nNo hay clientes registrados. Volviendo al menu principal...")
     else:
         print("\nLista de clientes:")
         for c in clientes:
@@ -126,10 +126,10 @@ def listar_clientes():
 menu_opciones = {"1": "Infantil", "2": "Adultos", "3": "Premium"}
 musica_opciones = {"1": "DJ", "2": "Banda", "3": "Playlist personalizada"}
 servicios_opciones = {
-    "1": "Decoración temática",
-    "2": "Fotografía",
-    "3": "Animación",
-    "4": "Cotillón"
+    "1": "Decoracion tematica",
+    "2": "Fotografia",
+    "3": "Animacion",
+    "4": "Cotillon"
 }
 
 
@@ -190,7 +190,7 @@ def registrar_reserva():
 def listar_reservas():
     """Muestra la lista de reservas."""
     if not reservas:
-        print("No hay reservas registradas.")
+        print("\nNo hay reservas registradas. Volviendo al menu principal...")
     else:
         print("\nLista de reservas")
         reservitas = reservas[:]
@@ -204,12 +204,12 @@ def modificar_reserva():
     """Modifica una reserva por ID."""
     listar_reservas()
     if not reservas:
-        return
+        return 
 
     try:
         id_sel = int(input("\nID de la reserva a modificar: ").strip())
-    except:
-        print("ID inválido.")
+    except ValueError:
+        print("ID inválido. Debe ingresar un numero entero.")
         return
 
     objetivo = None
@@ -234,7 +234,7 @@ def modificar_reserva():
             print("Formato inválido, se mantiene la fecha anterior.")
         else:
             if existe_reserva_en_fecha(nueva_iso, excluir_id=objetivo["id"]):
-                print("Esa fecha ya está ocupada. No se cambia.")
+                print("Esa fecha ya está ocupada.")
             else:
                 objetivo["fecha"] = nueva_iso
 
@@ -281,8 +281,8 @@ def eliminar_reserva():
 
     try:
         id_sel = int(input("\nID de la reserva a eliminar: ").strip())
-    except:
-        print("ID inválido.")
+    except ValueError:
+        print("ID inválido. Debe ingresar un numero entero.")
         return
 
     idx = -1
@@ -307,14 +307,18 @@ def eliminar_reserva():
 
 def menu():
     """Menú principal del sistema."""
+    global clientes, reservas
+
     clientes_cargados = cargar_clientes()
+    clientes = clientes_cargados
     reservas_cargadas = cargar_reservas()
-    clientes.clear(); clientes.extend(clientes_cargados)
-    reservas.clear(); reservas.extend(reservas_cargadas)
+    reservas = reservas_cargadas
+
 
     while True:
         print("\nSistema de Gestión del Salón de Fiestas ")
-        print("1. Registrar cliente")
+        print("\nMenú principal:")
+        print("\n1. Registrar cliente")
         print("2. Listar clientes")
         print("3. Registrar reserva")
         print("4. Listar reservas")
@@ -339,7 +343,7 @@ def menu():
         elif opcion == "6":
             eliminar_reserva()
         elif opcion == "0":
-            print("¡Gracias por usar el sistema, hasta la próxima!")
+            print("\n¡Gracias por usar el sistema, hasta la próxima!")
             return False
         else:
             print("\nOpción inválida, intente de nuevo.")
@@ -347,5 +351,3 @@ def menu():
 
 if __name__ == "__main__":
     menu()
-
-    
