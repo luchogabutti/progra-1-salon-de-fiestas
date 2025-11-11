@@ -17,6 +17,13 @@ def es_numero(cadena):
             return False
     return True
 
+def buscar_indice_por_id(lista, id_bus):
+    """Devuelve el índice de la reserva con ese ID o -1 si no existe."""
+    for i in range(len(lista)):
+        if lista[i]["id"] == id_bus:
+            return i
+    return -1
+
 
 def convertir_fecha(fecha_texto):
     """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a 'AAAA-MM-DD'."""
@@ -285,12 +292,7 @@ def eliminar_reserva():
         print("ID inválido. Debe ingresar un numero entero.")
         return
 
-    idx = -1
-    for i, r in enumerate(reservas):
-        if r["id"] == id_sel:
-            idx = i
-            break
-
+    idx = buscar_indice_por_id(reservas, id_sel)
     if idx == -1:
         print("No se encontró la reserva.")
         return
