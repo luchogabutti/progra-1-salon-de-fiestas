@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from opciones import menu_opciones, musica_opciones, servicios_opciones
 
 ARCHIVO_CLIENTES = "clientes.json"
 ARCHIVO_RESERVAS = "reservas.json"
