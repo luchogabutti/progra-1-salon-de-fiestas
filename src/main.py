@@ -6,9 +6,6 @@ from opciones import menu_opciones, musica_opciones, servicios_opciones
 ARCHIVO_CLIENTES = "clientes.json"
 ARCHIVO_RESERVAS = "reservas.json"
 
-clientes = []
-reservas = []
-
 
 def es_numero(cadena):
     """True si todos los caracteres son dígitos."""
@@ -18,6 +15,14 @@ def es_numero(cadena):
         if c not in "0123456789":
             return False
     return True
+
+
+def contiene_numeros(cadena):
+    """True si la cadena contiene al menos un digito."""
+    for c in cadena:
+        if c in "0123456789":
+            return True
+    return False
 
 def buscar_indice_por_id(lista, id_bus):
     """Devuelve el índice de la reserva con ese ID o -1 si no existe."""
@@ -40,7 +45,7 @@ def convertir_fecha(fecha_texto):
             return None
 
 
-def generar_id_reserva():
+def generar_id_reserva(reservas):
     """Devuelve un ID incremental para reservas."""
     max_id = 0
     for r in reservas:
@@ -49,7 +54,7 @@ def generar_id_reserva():
     return max_id + 1
 
 
-def existe_reserva_en_fecha(fecha_iso, excluir_id=None):
+def existe_reserva_en_fecha(reservas, fecha_iso, excluir_id=None):
     """True si existe reserva en esa fecha (opcional: excluye una ID)."""
     for r in reservas:
         if r["fecha"] == fecha_iso:
@@ -58,18 +63,18 @@ def existe_reserva_en_fecha(fecha_iso, excluir_id=None):
     return False
 
 
-def guardar_clientes():
+def guardar_clientes(clientes, archivo):
     """Guarda los clientes en un archivo JSON."""
-    with open(ARCHIVO_CLIENTES, "w") as f:
+    with open(archivo, "w") as f:
         json.dump(clientes, f)
 
 
-def cargar_clientes():
+def cargar_clientes(archivo):
     """Carga los clientes desde un archivo JSON si existe."""
-    if not os.path.exists(ARCHIVO_CLIENTES):
+    if not os.path.exists(archivo):
         return []
     try:
-        with open(ARCHIVO_CLIENTES, "r") as f:
+        with open(archivo, "r") as f:
             data = json.load(f)
             if type(data) is list:
                 return data
@@ -79,18 +84,18 @@ def cargar_clientes():
         return []
 
 
-def guardar_reservas():
+def guardar_reservas(reservas, archivo):
     """Guarda las reservas en un archivo JSON."""
-    with open(ARCHIVO_RESERVAS, "w") as f:
+    with open(archivo, "w") as f:
         json.dump(reservas, f)
 
 
-def cargar_reservas():
+def cargar_reservas(archivo):
     """Carga las reservas desde un archivo JSON si existe."""
-    if not os.path.exists(ARCHIVO_RESERVAS):
+    if not os.path.exists(archivo):
         return []
     try:
-        with open(ARCHIVO_RESERVAS, "r") as f:
+        with open(archivo, "r") as f:
             data = json.load(f)
             if type(data) is list:
                 return data
@@ -100,29 +105,34 @@ def cargar_reservas():
         return []
 
 
-def nuevo_cliente(nombre, dni):
+def nuevo_cliente(clientes, nombre, dni, archivo):
     """Registra un nuevo cliente en la estructura 'clientes'."""
     if nombre.strip() == "":
         print("\n¡Error! El nombre es obligatorio. No puede estar vacio.")
-        return
+        return clientes
+    
+    if contiene_numeros(nombre):
+        print("\n¡Error! El nombre no puede contener números.")
+        return clientes
     
     if dni.strip() == "":
         print("\n¡Error! El DNI es obligatorio. No puede estar vacio.")
-        return
+        return clientes
     
     if not es_numero(dni):
         print("\n¡Error! El DNI debe ser un número. Volviendo al menú principal...")
-        return
+        return clientes
     for c in clientes:
         if c["dni"] == dni:
             print("\n¡Error! Ya existe un cliente con ese DNI.")
-            return
+            return clientes
     clientes.append({"nombre": nombre.strip(), "dni": dni.strip()})
-    guardar_clientes()
+    guardar_clientes(clientes, archivo)
     print("\nCliente registrado con éxito y guardado en archivo json.")
+    return clientes
 
 
-def listar_clientes():
+def listar_clientes(clientes):
     """Muestra la lista completa de clientes."""
     if not clientes:
         print("\nNo hay clientes registrados. Volviendo al menu principal...")
@@ -142,35 +152,35 @@ servicios_opciones = {
 }
 
 
-def registrar_reserva():
+def registrar_reserva(reservas, archivo):
     """Registra una nueva reserva con menú, música y servicios."""
     print("\nRegistrar reserva")
     nombre = input("Nombre del cliente: ").strip()
     
     if nombre == "":
         print("\n¡Error! El nombre del cliente es obligatorio. No puede estar vacio.")
-        return
+        return reservas
     
     tipo = input("Tipo de fiesta: ").strip()
     
     if tipo == "":
         print("\n¡Error! El tipo de fiesta es obligatorio. No puede estar vacio.")
-        return
+        return reservas
     
     fecha_texto = input("Fecha (DD/MM/AAAA): ").strip()
     
     if fecha_texto == "":
         print("\n¡Error! La fecha es obligatoria. No puede estar vacía.")
-        return
+        return reservas
 
     fecha_iso = convertir_fecha(fecha_texto)
     if fecha_iso is None:
         print("\nFormato de fecha inválido. Usar DD/MM/AAAA (ej: 18/09/2023).")
-        return
+        return reservas
 
-    if existe_reserva_en_fecha(fecha_iso):
+    if existe_reserva_en_fecha(reservas, fecha_iso):
         print("No se puede reservar: ya existe una reserva en esa fecha.")
-        return
+        return reservas
 
     print("\nMenús disponibles:")
     for k, v in menu_opciones.items():
@@ -197,7 +207,7 @@ def registrar_reserva():
                 servicios.append(servicios_opciones[clave])
 
     reserva = {
-        "id": generar_id_reserva(),
+        "id": generar_id_reserva(reservas),
         "nombre": nombre,
         "tipo": tipo,
         "fecha": fecha_iso,
@@ -206,11 +216,12 @@ def registrar_reserva():
         "servicios": servicios
     }
     reservas.append(reserva)
-    guardar_reservas()
+    guardar_reservas(reservas, archivo)
     print("\nReserva registrada con éxito.")
+    return reservas
 
 
-def listar_reservas():
+def listar_reservas(reservas):
     """Muestra la lista de reservas."""
     if not reservas:
         print("\nNo hay reservas registradas. Volviendo al menu principal...")
@@ -223,17 +234,17 @@ def listar_reservas():
             print(f"ID {r['id']} - Cliente: {r['nombre']} - Fiesta: {r['tipo']} - Fecha: {r['fecha']} - Menú: {r['menu']} - Música: {r['musica']} - Servicios: {serv_txt}")
 
 
-def modificar_reserva():
+def modificar_reserva(reservas, archivo):
     """Modifica una reserva por ID."""
-    listar_reservas()
+    listar_reservas(reservas)
     if not reservas:
-        return 
+        return reservas
 
     try:
         id_sel = int(input("\nID de la reserva a modificar: ").strip())
     except ValueError:
         print("ID inválido. Debe ingresar un numero entero.")
-        return
+        return reservas
 
     objetivo = None
     for r in reservas:
@@ -243,7 +254,7 @@ def modificar_reserva():
 
     if objetivo is None:
         print("No se encontró la reserva.")
-        return
+        return reservas
 
     print("Deje vacío para mantener el valor anterior.")
     
@@ -261,7 +272,7 @@ def modificar_reserva():
         if nueva_iso is None:
             print("Formato inválido, se mantiene la fecha anterior.")
         else:
-            if existe_reserva_en_fecha(nueva_iso, excluir_id=objetivo["id"]):
+            if existe_reserva_en_fecha(reservas, nueva_iso, excluir_id=objetivo["id"]):
                 print("Esa fecha ya está ocupada.")
             else:
                 objetivo["fecha"] = nueva_iso
@@ -297,46 +308,43 @@ def modificar_reserva():
                     nuevos.append(servicios_opciones[clave])
         objetivo["servicios"] = nuevos
 
-    guardar_reservas()
+    guardar_reservas(reservas, archivo)
     print("Reserva modificada con éxito.")
+    return reservas
 
 
-def eliminar_reserva():
+def eliminar_reserva(reservas, archivo):
     """Elimina una reserva por ID."""
-    listar_reservas()
+    listar_reservas(reservas)
     if not reservas:
-        return
+        return reservas
 
     try:
         id_sel = int(input("\nID de la reserva a eliminar: ").strip())
     except ValueError:
         print("ID inválido. Debe ingresar un numero entero.")
-        return
+        return reservas
 
     idx = buscar_indice_por_id(reservas, id_sel)
     if idx == -1:
         print("No se encontró la reserva.")
-        return
+        return reservas
 
     print(f"Se eliminará la reserva ID {reservas[idx]['id']} de {reservas[idx]['nombre']} en {reservas[idx]['fecha']}.")
     conf = input("Confirmar (ELIMINAR): ").strip()
     if conf == "ELIMINAR":
         reservas.pop(idx)
-        guardar_reservas()
+        guardar_reservas(reservas, archivo)
         print("Reserva eliminada con éxito.")
     else:
         print("Operación cancelada.")
+    return reservas
 
 
 def menu():
     """Menú principal del sistema."""
-    global clientes, reservas
-
-    clientes_cargados = cargar_clientes()
-    clientes = clientes_cargados
-    reservas_cargadas = cargar_reservas()
-    reservas = reservas_cargadas
-
+    clientes = cargar_clientes(ARCHIVO_CLIENTES)
+    reservas = cargar_reservas(ARCHIVO_RESERVAS)
 
     while True:
         print("\nSistema de Gestión del Salón de Fiestas ")
@@ -354,17 +362,17 @@ def menu():
         if opcion == "1":
             nombre = input("\nIngrese el nombre y apellido: ")
             dni = input("Ingrese el DNI: ")
-            nuevo_cliente(nombre, dni)
+            clientes = nuevo_cliente(clientes, nombre, dni, ARCHIVO_CLIENTES)
         elif opcion == "2":
-            listar_clientes()
+            listar_clientes(clientes)
         elif opcion == "3":
-            registrar_reserva()
+            reservas = registrar_reserva(reservas, ARCHIVO_RESERVAS)
         elif opcion == "4":
-            listar_reservas()
+            listar_reservas(reservas)
         elif opcion == "5":
-            modificar_reserva()
+            reservas = modificar_reserva(reservas, ARCHIVO_RESERVAS)
         elif opcion == "6":
-            eliminar_reserva()
+            reservas = eliminar_reserva(reservas, ARCHIVO_RESERVAS)
         elif opcion == "0":
             print("\n¡Gracias por usar el sistema, hasta la próxima!")
             return False
