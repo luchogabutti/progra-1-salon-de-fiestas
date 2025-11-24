@@ -152,13 +152,23 @@ servicios_opciones = {
 }
 
 
-def registrar_reserva(reservas, archivo):
+def registrar_reserva(reservas, clientes, archivo):
     """Registra una nueva reserva con menú, música y servicios."""
     print("\nRegistrar reserva")
     nombre = input("Nombre del cliente: ").strip()
     
     if nombre == "":
         print("\n¡Error! El nombre del cliente es obligatorio. No puede estar vacio.")
+        return reservas
+    
+    cliente_existe = False
+    for c in clientes:
+        if c["nombre"].lower() == nombre.lower():
+            cliente_existe = True
+            break
+    
+    if not cliente_existe:
+        print("\n¡Error! El cliente no esta registrado. Debe registrar el cliente primero antes de hacer una reserva.")
         return reservas
     
     tipo = input("Tipo de fiesta: ").strip()
@@ -366,7 +376,7 @@ def menu():
         elif opcion == "2":
             listar_clientes(clientes)
         elif opcion == "3":
-            reservas = registrar_reserva(reservas, ARCHIVO_RESERVAS)
+            reservas = registrar_reserva(reservas, clientes, ARCHIVO_RESERVAS)
         elif opcion == "4":
             listar_reservas(reservas)
         elif opcion == "5":
