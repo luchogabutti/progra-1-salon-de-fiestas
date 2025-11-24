@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime
 
 ARCHIVO_CLIENTES = "clientes.json"
 ARCHIVO_RESERVAS = "reservas.json"
@@ -26,24 +27,16 @@ def buscar_indice_por_id(lista, id_bus):
 
 
 def convertir_fecha(fecha_texto):
-    """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a 'AAAA-MM-DD'."""
-    fecha_texto = fecha_texto.replace("-", "/")
-    partes = fecha_texto.split("/")
-    if len(partes) != 3:
-        return None
-    if es_numero(partes[0]) and es_numero(partes[1]) and es_numero(partes[2]):
-        dia = int(partes[0])
-        mes = int(partes[1])
-        anio = int(partes[2])
-        if not (1 <= mes <= 12):
+    """Convierte 'DD/MM/AAAA' o 'DD-MM-AAAA' a 'AAAA-MM-DD' usando datetime."""
+    try:
+        fecha = datetime.strptime(fecha_texto, "%d/%m/%Y")
+        return fecha.strftime("%Y-%m-%d")
+    except ValueError:
+        try:
+            fecha = datetime.strptime(fecha_texto, "%d-%m-%Y")
+            return fecha.strftime("%Y-%m-%d")
+        except ValueError:
             return None
-        if not (1 <= dia <= 31):
-            return None
-        if anio < 0:
-            return None
-        return f"{anio:04d}-{mes:02d}-{dia:02d}"
-    else:
-        return None
 
 
 def generar_id_reserva():
