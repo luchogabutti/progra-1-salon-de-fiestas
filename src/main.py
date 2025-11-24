@@ -108,6 +108,14 @@ def cargar_reservas():
 
 def nuevo_cliente(nombre, dni):
     """Registra un nuevo cliente en la estructura 'clientes'."""
+    if nombre.strip() == "":
+        print("\n¡Error! El nombre es obligatorio. No puede estar vacio.")
+        return
+    
+    if dni.strip() == "":
+        print("\n¡Error! El DNI es obligatorio. No puede estar vacio.")
+        return
+    
     if not es_numero(dni):
         print("\n¡Error! El DNI debe ser un número. Volviendo al menú principal...")
         return
@@ -144,8 +152,22 @@ def registrar_reserva():
     """Registra una nueva reserva con menú, música y servicios."""
     print("\nRegistrar reserva")
     nombre = input("Nombre del cliente: ").strip()
+    
+    if nombre == "":
+        print("\n¡Error! El nombre del cliente es obligatorio. No puede estar vacio.")
+        return
+    
     tipo = input("Tipo de fiesta: ").strip()
+    
+    if tipo == "":
+        print("\n¡Error! El tipo de fiesta es obligatorio. No puede estar vacio.")
+        return
+    
     fecha_texto = input("Fecha (DD/MM/AAAA): ").strip()
+    
+    if fecha_texto == "":
+        print("\n¡Error! La fecha es obligatoria. No puede estar vacía.")
+        return
 
     fecha_iso = convertir_fecha(fecha_texto)
     if fecha_iso is None:
@@ -199,7 +221,7 @@ def listar_reservas():
     if not reservas:
         print("\nNo hay reservas registradas. Volviendo al menu principal...")
     else:
-        print("\nLista de reservas")
+        print("\nLista de reservas:")
         reservitas = reservas[:]
         reservitas.sort(key=lambda x: x["fecha"])
         for r in reservitas:
@@ -230,6 +252,11 @@ def modificar_reserva():
         return
 
     print("Deje vacío para mantener el valor anterior.")
+    
+    nuevo_nombre = input(f"Nombre del cliente ({objetivo['nombre']}): ").strip()
+    if nuevo_nombre != "":
+        objetivo["nombre"] = nuevo_nombre
+    
     nuevo_tipo = input(f"Tipo de fiesta ({objetivo['tipo']}): ").strip()
     if nuevo_tipo != "":
         objetivo["tipo"] = nuevo_tipo
