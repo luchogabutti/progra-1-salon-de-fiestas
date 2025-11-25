@@ -145,21 +145,28 @@ def listar_clientes(clientes):
 def registrar_reserva(reservas, clientes, archivo):
     """Registra una nueva reserva con menú, música y servicios."""
     print("\nRegistrar reserva")
-    nombre = input("Nombre del cliente: ").strip()
+    dni = input("DNI del cliente: ").strip()
     
-    if nombre == "":
-        print("\n¡Error! El nombre del cliente es obligatorio. No puede estar vacio.")
+    if dni == "":
+        print("\n¡Error! El DNI del cliente es obligatorio. No puede estar vacio.")
         return reservas
     
-    cliente_existe = False
+    if not es_numero(dni):
+        print("\n¡Error! El DNI debe ser un número.")
+        return reservas
+    
+    cliente_encontrado = None
     for c in clientes:
-        if c["nombre"].lower() == nombre.lower():
-            cliente_existe = True
+        if c["dni"] == dni:
+            cliente_encontrado = c
             break
     
-    if not cliente_existe:
+    if cliente_encontrado is None:
         print("\n¡Error! El cliente no esta registrado. Debe registrar el cliente primero antes de hacer una reserva.")
         return reservas
+    
+    nombre = cliente_encontrado["nombre"]
+    print(f"Cliente encontrado: {nombre}")
     
     tipo = input("Tipo de fiesta: ").strip()
     
