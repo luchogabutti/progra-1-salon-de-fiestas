@@ -1,5 +1,5 @@
 """
-Archivo de opciones y menus el salon de fiestas.
+Archivo de opciones del salon de fiestas.
 """
 
 menu_opciones = {

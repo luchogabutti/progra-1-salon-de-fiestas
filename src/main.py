@@ -142,16 +142,6 @@ def listar_clientes(clientes):
             print("Nombre:", c["nombre"], "- DNI:", c["dni"])
 
 
-menu_opciones = {"1": "Infantil", "2": "Adultos", "3": "Premium"}
-musica_opciones = {"1": "DJ", "2": "Banda", "3": "Playlist personalizada"}
-servicios_opciones = {
-    "1": "Decoracion tematica",
-    "2": "Fotografia",
-    "3": "Animacion",
-    "4": "Cotillon"
-}
-
-
 def registrar_reserva(reservas, clientes, archivo):
     """Registra una nueva reserva con menú, música y servicios."""
     print("\nRegistrar reserva")
